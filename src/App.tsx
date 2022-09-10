@@ -18,6 +18,7 @@ function App() {
     validationSchema: createSchedulingSchema,
     onSubmit(values) {
       console.log(values.startDate?.toJSDate());
+      console.log(values.endDate?.toJSDate());
     },
   });
 
@@ -42,12 +43,19 @@ function App() {
                 value={formik.values.startDate}
                 disablePast
                 ampm={false}
-                disableMaskedInput
+                disableMaskedInput={false}
+                inputFormat="dd/MM/yyyy hh:mm"
+                mask="__/__/____ __:__"
                 onChange={(newValue) => {
                   formik.setFieldValue('startDate', newValue);
                 }}
                 renderInput={(props) => (
-                  <TextField {...props} error={Boolean(formik.errors.startDate)} helperText={formik.errors.startDate} />
+                  <TextField
+                    {...props}
+                    placeholder="dd/mm/yyyy hh:mm"
+                    error={Boolean(formik.errors.startDate)}
+                    helperText={formik.errors.startDate}
+                  />
                 )}
               />
             </Grid>
@@ -58,7 +66,10 @@ function App() {
                 value={formik.values.endDate}
                 disablePast
                 ampm={false}
-                disableMaskedInput
+                ampmInClock={false}
+                inputFormat="dd/MM/yyyy hh:mm"
+                mask="__/__/____ __:__"
+                disableMaskedInput={false}
                 onChange={(newValue) => {
                   formik.setFieldValue('endDate', newValue);
                 }}
