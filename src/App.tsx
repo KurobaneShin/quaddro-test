@@ -3,6 +3,7 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { useFormik } from 'formik';
 
+import { createSchedulingSchema } from '@/schemas/schedulingSchema';
 import { IScheduling } from '@/types/scheduling';
 
 type formValues = {} & IScheduling;
@@ -14,6 +15,7 @@ function App() {
       startDate: null,
       endDate: null,
     },
+    validationSchema: createSchedulingSchema,
     onSubmit(values) {
       console.log(values.startDate?.toJSDate());
     },
@@ -36,8 +38,7 @@ function App() {
             </Grid>
             <Grid item xs={12}>
               <DateTimePicker
-                renderInput={(props) => <TextField {...props} />}
-                label="DateTimePicker"
+                label="Inicio do agendamento"
                 value={formik.values.startDate}
                 disablePast
                 ampm={false}
@@ -45,6 +46,25 @@ function App() {
                 onChange={(newValue) => {
                   formik.setFieldValue('startDate', newValue);
                 }}
+                renderInput={(props) => (
+                  <TextField {...props} error={Boolean(formik.errors.startDate)} helperText={formik.errors.startDate} />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <DateTimePicker
+                label="Fim do agendamento"
+                value={formik.values.endDate}
+                disablePast
+                ampm={false}
+                disableMaskedInput
+                onChange={(newValue) => {
+                  formik.setFieldValue('endDate', newValue);
+                }}
+                renderInput={(props) => (
+                  <TextField {...props} error={Boolean(formik.errors.endDate)} helperText={formik.errors.endDate} />
+                )}
               />
             </Grid>
 
