@@ -58,7 +58,7 @@ function App() {
                 id="title"
                 label="Título"
                 value={formik.values.title}
-                error={Boolean(formik.errors.title)}
+                error={Boolean(formik.errors.title) && Boolean(formik.touched.title)}
                 helperText={formik.errors.title}
                 onChange={formik.handleChange}
               />
@@ -79,7 +79,7 @@ function App() {
                   <TextField
                     {...props}
                     placeholder="dd/mm/yyyy hh:mm"
-                    error={Boolean(formik.errors.startDate)}
+                    error={Boolean(formik.errors.startDate) && Boolean(formik.touched.startDate)}
                     helperText={formik.errors.startDate}
                   />
                 )}
@@ -100,7 +100,11 @@ function App() {
                   formik.setFieldValue('endDate', newValue);
                 }}
                 renderInput={(props) => (
-                  <TextField {...props} error={Boolean(formik.errors.endDate)} helperText={formik.errors.endDate} />
+                  <TextField
+                    {...props}
+                    error={Boolean(formik.errors.endDate) && Boolean(formik.touched.endDate)}
+                    helperText={formik.errors.endDate}
+                  />
                 )}
               />
             </Grid>
