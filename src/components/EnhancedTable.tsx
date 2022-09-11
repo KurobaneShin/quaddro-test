@@ -9,114 +9,22 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import { visuallyHidden } from '@mui/utils';
 import { DateTime } from 'luxon';
 
-import { Order } from '@/types';
+import { IRowData, Order } from '@/types';
 import { IScheduling } from '@/types/scheduling';
 import { getComparator } from '@/utils/comparators';
+import createData from '@/utils/createRowData';
 import stableSort from '@/utils/stableSort';
 
+import EnhancedTableHead from './EnchancedTableHead';
 import EnhancedTableToolbar from './EnchancedToolbar';
 
 type Props = {
   schedules: IScheduling[];
 };
-
-function createData(title: string, startDate: string, endDate: string): IRowData {
-  return {
-    title,
-    startDate,
-    endDate,
-  };
-}
-
-interface HeadCell {
-  disablePadding: boolean;
-  id: keyof IRowData;
-  label: string;
-  numeric: boolean;
-}
-
-const headCells: readonly HeadCell[] = [
-  {
-    id: 'title',
-    numeric: false,
-    disablePadding: true,
-    label: 'Titulo',
-  },
-  {
-    id: 'startDate',
-    numeric: true,
-    disablePadding: false,
-    label: 'Data de inicio',
-  },
-  {
-    id: 'endDate',
-    numeric: true,
-    disablePadding: false,
-    label: 'Data de fim',
-  },
-];
-
-interface EnhancedTableProps {
-  numSelected: number;
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof IRowData) => void;
-  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  order: Order;
-  orderBy: string;
-  rowCount: number;
-}
-
-function EnhancedTableHead(props: EnhancedTableProps) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
-  const createSortHandler = (property: keyof IRowData) => (event: React.MouseEvent<unknown>) => {
-    onRequestSort(event, property);
-  };
-
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all desserts',
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? 'right' : 'left'}
-            padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
-              ) : null}
-            </TableSortLabel>
-          </TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
-  );
-}
 
 export default function EnhancedTable({ schedules }: Props) {
   const [order, setOrder] = React.useState<Order>('asc');

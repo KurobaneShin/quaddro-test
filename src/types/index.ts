@@ -5,3 +5,10 @@ export interface IRowData {
   startDate: string;
   endDate: string;
 }
+
+export interface IHeadCell {
+  disablePadding: boolean;
+  id: keyof IRowData;
+  label: string;
+  numeric: boolean;
+}
