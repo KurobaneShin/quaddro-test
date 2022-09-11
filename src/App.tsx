@@ -1,14 +1,33 @@
+import { useState } from 'react';
+
 import { Box, Button, Container, CssBaseline, Grid, TextField } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { useFormik } from 'formik';
 
+import EnhancedTable from '@/components/EnhancedTable';
 import { createSchedulingSchema } from '@/schemas/schedulingSchema';
 import { IScheduling } from '@/types/scheduling';
 
 type formValues = {} & IScheduling;
 
 function App() {
+  const [schedules, setSchedules] = useState<IScheduling[]>([]);
+
+  const checkIsAlreadyScheduled = (values: IScheduling) => {
+    const { startDate } = values;
+
+    if (!startDate) return false;
+
+    return schedules.some((schedule) => {
+      if (!schedule.startDate || !schedule.endDate) return false;
+
+      return (
+        startDate?.toMillis() >= schedule.startDate?.toMillis() && startDate?.toMillis() < schedule.endDate?.toMillis()
+      );
+    });
+  };
+
   const formik = useFormik<formValues>({
     initialValues: {
       title: '',
@@ -17,8 +36,13 @@ function App() {
     },
     validationSchema: createSchedulingSchema,
     onSubmit(values) {
-      console.log(values.startDate?.toJSDate());
-      console.log(values.endDate?.toJSDate());
+      const isAlreadyScheduled = checkIsAlreadyScheduled(values);
+
+      if (isAlreadyScheduled) {
+        console.log('ja tem horario marcado');
+      } else {
+        setSchedules([values, ...schedules]);
+      }
     },
   });
 
@@ -28,16 +52,18 @@ function App() {
       <Container sx={{ mt: 1 }}>
         <Box component="form" onSubmit={formik.handleSubmit}>
           <Grid container spacing={3}>
-            <Grid item xs={12}>
+            <Grid item xs={4}>
               <TextField
                 name="title"
                 id="title"
                 label="Título"
                 value={formik.values.title}
+                error={Boolean(formik.errors.title)}
+                helperText={formik.errors.title}
                 onChange={formik.handleChange}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={4}>
               <DateTimePicker
                 label="Inicio do agendamento"
                 value={formik.values.startDate}
@@ -60,7 +86,7 @@ function App() {
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={4}>
               <DateTimePicker
                 label="Fim do agendamento"
                 value={formik.values.endDate}
@@ -81,6 +107,10 @@ function App() {
 
             <Button type="submit">Agendar</Button>
           </Grid>
+        </Box>
+
+        <Box>
+          <EnhancedTable schedules={schedules} />
         </Box>
       </Container>
     </LocalizationProvider>
