@@ -3,6 +3,7 @@ import React from 'react';
 import { Box, Button, Grid, TextField } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { useFormik } from 'formik';
+import { useSnackbar } from 'notistack';
 
 import { createSchedulingSchema } from '@/schemas/schedulingSchema';
 import { IScheduling } from '@/types/scheduling';
@@ -15,6 +16,8 @@ type Props = {
 };
 
 function FormAddSchedule({ schedules, handleAddSchedule }: Props) {
+  const { enqueueSnackbar } = useSnackbar();
+
   const checkIsAlreadyScheduled = (values: IScheduling) => {
     const { startDate } = values;
 
@@ -40,7 +43,7 @@ function FormAddSchedule({ schedules, handleAddSchedule }: Props) {
       const isAlreadyScheduled = checkIsAlreadyScheduled(values);
 
       if (isAlreadyScheduled) {
-        console.log('ja tem horario marcado');
+        enqueueSnackbar('Este horário está indisponível', { variant: 'warning' });
       } else {
         handleAddSchedule([values, ...schedules]);
       }
@@ -78,7 +81,9 @@ function FormAddSchedule({ schedules, handleAddSchedule }: Props) {
                 {...props}
                 placeholder="dd/mm/yyyy hh:mm"
                 error={Boolean(formik.errors.startDate) && Boolean(formik.touched.startDate)}
-                helperText={formik.errors.startDate}
+                helperText={
+                  Boolean(formik.errors.startDate) && Boolean(formik.touched.startDate) && formik.errors.startDate
+                }
               />
             )}
           />
@@ -101,7 +106,7 @@ function FormAddSchedule({ schedules, handleAddSchedule }: Props) {
               <TextField
                 {...props}
                 error={Boolean(formik.errors.endDate) && Boolean(formik.touched.endDate)}
-                helperText={formik.errors.endDate}
+                helperText={Boolean(formik.errors.endDate) && Boolean(formik.touched.endDate) && formik.errors.endDate}
               />
             )}
           />
