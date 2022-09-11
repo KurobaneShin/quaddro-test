@@ -2,9 +2,7 @@ import * as React from 'react';
 
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Paper from '@mui/material/Paper';
-import Switch from '@mui/material/Switch';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -16,7 +14,7 @@ import { DateTime } from 'luxon';
 import { IRowData, Order } from '@/types';
 import { IScheduling } from '@/types/scheduling';
 import { getComparator } from '@/utils/comparators';
-import createData from '@/utils/createRowData';
+import createRowData from '@/utils/createRowData';
 import stableSort from '@/utils/stableSort';
 
 import EnhancedTableHead from './EnchancedTableHead';
@@ -31,15 +29,14 @@ export default function EnhancedTable({ schedules }: Props) {
   const [orderBy, setOrderBy] = React.useState<keyof IRowData>('title');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const rows = React.useMemo(() => {
     return schedules.map((schedule) => {
       const { title, startDate, endDate } = schedule;
 
-      if (startDate && endDate) return createData(title, startDate?.toString(), endDate?.toString());
-      return createData('', '', '');
+      if (startDate && endDate) return createRowData(title, startDate?.toString(), endDate?.toString());
+      return createRowData('', '', '');
     });
   }, [schedules]);
 
@@ -83,21 +80,20 @@ export default function EnhancedTable({ schedules }: Props) {
     setPage(0);
   };
 
-  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDense(event.target.checked);
-  };
-
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+  const emptyRows = React.useMemo(
+    () => (page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0),
+    [page, rows.length, rowsPerPage]
+  );
 
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
             <EnhancedTableHead
               numSelected={selected.length}
               order={order}
@@ -107,8 +103,6 @@ export default function EnhancedTable({ schedules }: Props) {
               rowCount={rows.length}
             />
             <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-              rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
@@ -145,7 +139,7 @@ export default function EnhancedTable({ schedules }: Props) {
               {emptyRows > 0 && (
                 <TableRow
                   style={{
-                    height: (dense ? 33 : 53) * emptyRows,
+                    height: 33 * emptyRows,
                   }}
                 >
                   <TableCell colSpan={6} />
@@ -164,7 +158,6 @@ export default function EnhancedTable({ schedules }: Props) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel control={<Switch checked={dense} onChange={handleChangeDense} />} label="Dense padding" />
     </Box>
   );
 }
